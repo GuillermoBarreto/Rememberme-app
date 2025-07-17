@@ -33,3 +33,19 @@ button = tk.Button(root, text="Start Reminders", command=start_reminder, bg="#4C
 button.pack(pady=20)
 
 root.mainloop()
+
+import os
+import shutil
+
+def add_to_startup():
+    startup_path = os.path.join(os.getenv('APPDATA'), 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
+    target_path = os.path.join(startup_path, 'rememberme.bat')
+
+    python_path = os.sys.executable
+    script_path = os.path.abspath(__file__)
+
+    with open(target_path, 'w') as bat_file:
+        bat_file.write(f'start "" "{python_path}" "{script_path}"')
+
+# Call it once so it adds itself
+add_to_startup()
