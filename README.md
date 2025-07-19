@@ -11,3 +11,5 @@
 1. Run the app:
    ```bash
    python rememberme.py
+
+   .
