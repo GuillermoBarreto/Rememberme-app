@@ -16,6 +16,7 @@ def remind():
     messagebox.showinfo("⏰ RememberMe", f"Time to study!\n\n{quote}")
 
 def start_reminder():
+    button.config(state=tk.DISABLED, text="Reminders active")
     remind()
     # Repeat every 1 hour (3600000 ms) — you can change to 10 min (600000)
     root.after(3600000, start_reminder)
