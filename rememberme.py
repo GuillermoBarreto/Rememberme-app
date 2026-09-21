@@ -36,13 +36,18 @@ button.pack(pady=20)
 root.mainloop()
 
 import os
-import shutil
+import sys
 
 def add_to_startup():
-    startup_path = os.path.join(os.getenv('APPDATA'), 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
+    appdata = os.getenv('APPDATA')
+    if not appdata:
+        # Startup registration only applies on Windows; skip elsewhere
+        # instead of crashing on a None path.
+        return
+    startup_path = os.path.join(appdata, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
     target_path = os.path.join(startup_path, 'rememberme.bat')
 
-    python_path = os.sys.executable
+    python_path = sys.executable
     script_path = os.path.abspath(__file__)
 
     with open(target_path, 'w') as bat_file:
