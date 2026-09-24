@@ -46,12 +46,19 @@ def add_to_startup():
         return
     startup_path = os.path.join(appdata, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
     target_path = os.path.join(startup_path, 'rememberme.bat')
+    if os.path.exists(target_path):
+        # Already registered; don't rewrite the launcher on every start.
+        return
 
     python_path = sys.executable
     script_path = os.path.abspath(__file__)
 
-    with open(target_path, 'w') as bat_file:
-        bat_file.write(f'start "" "{python_path}" "{script_path}"')
+    try:
+        with open(target_path, 'w') as bat_file:
+            bat_file.write(f'start "" "{python_path}" "{script_path}"')
+    except OSError:
+        # A locked-down Startup folder must not crash the app itself.
+        pass
 
 # Call it once so it adds itself
 add_to_startup()
