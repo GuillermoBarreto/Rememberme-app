@@ -11,6 +11,10 @@ quotes = [
     "Put the controller down — pick up your future."
 ]
 
+# Reminder interval in milliseconds. 1 hour by default; use 600000 for 10 minutes.
+REMINDER_INTERVAL_MS = 3600000
+
+
 def remind():
     quote = random.choice(quotes)
     messagebox.showinfo("⏰ RememberMe", f"Time to study!\n\n{quote}")
@@ -18,8 +22,8 @@ def remind():
 def start_reminder():
     button.config(state=tk.DISABLED, text="Reminders active")
     remind()
-    # Repeat every 1 hour (3600000 ms) — you can change to 10 min (600000)
-    root.after(3600000, start_reminder)
+    # Repeat until the window is closed.
+    root.after(REMINDER_INTERVAL_MS, start_reminder)
 
 # Create window
 root = tk.Tk()
