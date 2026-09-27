@@ -11,5 +11,6 @@
 1. Run the app:
    ```bash
    python rememberme.py
-
-   .
+   ```
+2. Click **Start Reminders** — a motivational pop-up will appear every hour while the app is running.
+3. On Windows, the app registers itself to launch automatically at startup.
