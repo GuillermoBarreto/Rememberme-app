@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
+import os
 import random
-import time
+import sys
 
 quotes = [
     "Stay focused and never give up.",
@@ -26,22 +27,6 @@ def start_reminder():
     root.after(REMINDER_INTERVAL_MS, start_reminder)
 
 # Create window
-root = tk.Tk()
-root.title("RememberMe")
-root.geometry("300x150")
-root.resizable(False, False)
-
-label = tk.Label(root, text="RememberMe Study App", font=("Arial", 14))
-label.pack(pady=10)
-
-button = tk.Button(root, text="Start Reminders", command=start_reminder, bg="#4CAF50", fg="white", font=("Arial", 12))
-button.pack(pady=20)
-
-root.mainloop()
-
-import os
-import sys
-
 def add_to_startup():
     appdata = os.getenv('APPDATA')
     if not appdata:
@@ -64,5 +49,19 @@ def add_to_startup():
         # A locked-down Startup folder must not crash the app itself.
         pass
 
-# Call it once so it adds itself
+root = tk.Tk()
+root.title("RememberMe")
+root.geometry("300x150")
+root.resizable(False, False)
+
+# Register at startup now, while the app is launching: calling this after
+# root.mainloop() would only run it once the window closes.
 add_to_startup()
+
+label = tk.Label(root, text="RememberMe Study App", font=("Arial", 14))
+label.pack(pady=10)
+
+button = tk.Button(root, text="Start Reminders", command=start_reminder, bg="#4CAF50", fg="white", font=("Arial", 12))
+button.pack(pady=20)
+
+root.mainloop()
