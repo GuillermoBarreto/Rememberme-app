@@ -16,15 +16,34 @@ quotes = [
 REMINDER_INTERVAL_MS = 3600000
 
 
+# Id of the pending `after` callback, or None when reminders are stopped.
+reminder_job = None
+
+
 def remind():
+    """Show one study reminder popup with a random motivational quote."""
     quote = random.choice(quotes)
     messagebox.showinfo("⏰ RememberMe", f"Time to study!\n\n{quote}")
 
-def start_reminder():
-    button.config(state=tk.DISABLED, text="Reminders active")
+
+def schedule_reminder():
+    """Show a reminder now, then queue the next one after the interval."""
+    global reminder_job
     remind()
-    # Repeat until the window is closed.
-    root.after(REMINDER_INTERVAL_MS, start_reminder)
+    reminder_job = root.after(REMINDER_INTERVAL_MS, schedule_reminder)
+
+
+def toggle_reminders():
+    """Start reminders on first click; stop them on the next click."""
+    global reminder_job
+    if reminder_job is not None:
+        # Reminders are running: cancel the pending one and re-arm the button.
+        root.after_cancel(reminder_job)
+        reminder_job = None
+        button.config(text="Start Reminders")
+        return
+    button.config(text="Stop Reminders")
+    schedule_reminder()
 
 # Create window
 def add_to_startup():
@@ -61,7 +80,7 @@ add_to_startup()
 label = tk.Label(root, text="RememberMe Study App", font=("Arial", 14))
 label.pack(pady=10)
 
-button = tk.Button(root, text="Start Reminders", command=start_reminder, bg="#4CAF50", fg="white", font=("Arial", 12))
+button = tk.Button(root, text="Start Reminders", command=toggle_reminders, bg="#4CAF50", fg="white", font=("Arial", 12))
 button.pack(pady=20)
 
 root.mainloop()
