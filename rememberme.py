@@ -47,6 +47,7 @@ def toggle_reminders():
 
 # Create window
 def add_to_startup():
+    """Register the app to launch at Windows login (frozen exe or script)."""
     appdata = os.getenv('APPDATA')
     if not appdata:
         # Startup registration only applies on Windows; skip elsewhere
@@ -58,12 +59,16 @@ def add_to_startup():
         # Already registered; don't rewrite the launcher on every start.
         return
 
-    python_path = sys.executable
-    script_path = os.path.abspath(__file__)
+    if getattr(sys, 'frozen', False):
+        # Running as a PyInstaller bundle: launch the exe itself. There is no
+        # Python interpreter or __file__ to point at in this mode.
+        launch_command = f'start "" "{sys.executable}"'
+    else:
+        launch_command = f'start "" "{sys.executable}" "{os.path.abspath(__file__)}"'
 
     try:
         with open(target_path, 'w') as bat_file:
-            bat_file.write(f'start "" "{python_path}" "{script_path}"')
+            bat_file.write(launch_command)
     except OSError:
         # A locked-down Startup folder must not crash the app itself.
         pass
