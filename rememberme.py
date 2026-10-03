@@ -55,16 +55,21 @@ def add_to_startup():
         return
     startup_path = os.path.join(appdata, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
     target_path = os.path.join(startup_path, 'rememberme.bat')
-    if os.path.exists(target_path):
-        # Already registered; don't rewrite the launcher on every start.
-        return
-
     if getattr(sys, 'frozen', False):
         # Running as a PyInstaller bundle: launch the exe itself. There is no
         # Python interpreter or __file__ to point at in this mode.
         launch_command = f'start "" "{sys.executable}"'
     else:
         launch_command = f'start "" "{sys.executable}" "{os.path.abspath(__file__)}"'
+
+    try:
+        with open(target_path) as existing:
+            if existing.read() == launch_command:
+                # Already registered with the current path; nothing to do.
+                return
+    except OSError:
+        # No launcher yet (or unreadable); fall through and (re)write one.
+        pass
 
     try:
         with open(target_path, 'w') as bat_file:
