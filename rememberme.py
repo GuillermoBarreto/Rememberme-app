@@ -45,7 +45,6 @@ def toggle_reminders():
     button.config(text="Stop Reminders")
     schedule_reminder()
 
-# Create window
 def add_to_startup():
     """Register the app to launch at Windows login (frozen exe or script)."""
     appdata = os.getenv('APPDATA')
@@ -78,19 +77,27 @@ def add_to_startup():
         # A locked-down Startup folder must not crash the app itself.
         pass
 
-root = tk.Tk()
-root.title("RememberMe")
-root.geometry("300x150")
-root.resizable(False, False)
+def main():
+    """Build the window and start the reminder loop."""
+    global root, button
+    # Create window
+    root = tk.Tk()
+    root.title("RememberMe")
+    root.geometry("300x150")
+    root.resizable(False, False)
 
-# Register at startup now, while the app is launching: calling this after
-# root.mainloop() would only run it once the window closes.
-add_to_startup()
+    # Register at startup now, while the app is launching: calling this after
+    # root.mainloop() would only run it once the window closes.
+    add_to_startup()
 
-label = tk.Label(root, text="RememberMe Study App", font=("Arial", 14))
-label.pack(pady=10)
+    label = tk.Label(root, text="RememberMe Study App", font=("Arial", 14))
+    label.pack(pady=10)
 
-button = tk.Button(root, text="Start Reminders", command=toggle_reminders, bg="#4CAF50", fg="white", font=("Arial", 12))
-button.pack(pady=20)
+    button = tk.Button(root, text="Start Reminders", command=toggle_reminders, bg="#4CAF50", fg="white", font=("Arial", 12))
+    button.pack(pady=20)
 
-root.mainloop()
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
