@@ -12,12 +12,37 @@ quotes = [
     "Put the controller down — pick up your future."
 ]
 
-# Reminder interval in milliseconds. 1 hour by default; use 600000 for 10 minutes.
+# Reminder interval in milliseconds. 1 hour by default; override it at launch
+# with `python rememberme.py --interval-minutes 10`.
 REMINDER_INTERVAL_MS = 3600000
+
+# Effective interval in milliseconds, set from --interval-minutes in main().
+reminder_interval_ms = REMINDER_INTERVAL_MS
 
 
 # Id of the pending `after` callback, or None when reminders are stopped.
 reminder_job = None
+
+
+def _parse_interval_minutes(argv):
+    """Return the reminder interval in minutes from ``--interval-minutes``.
+
+    Defaults to 60. Exits with status 2 on a missing or invalid value.
+    """
+    args = list(argv[1:])
+    if "--interval-minutes" not in args:
+        return 60
+    index = args.index("--interval-minutes")
+    try:
+        minutes = int(args[index + 1])
+    except (IndexError, ValueError):
+        print("error: --interval-minutes needs a positive integer number of minutes",
+              file=sys.stderr)
+        raise SystemExit(2)
+    if minutes <= 0:
+        print("error: --interval-minutes must be positive", file=sys.stderr)
+        raise SystemExit(2)
+    return minutes
 
 
 def remind():
@@ -30,7 +55,7 @@ def schedule_reminder():
     """Show a reminder now, then queue the next one after the interval."""
     global reminder_job
     remind()
-    reminder_job = root.after(REMINDER_INTERVAL_MS, schedule_reminder)
+    reminder_job = root.after(reminder_interval_ms, schedule_reminder)
 
 
 def toggle_reminders():
@@ -77,9 +102,10 @@ def add_to_startup():
         # A locked-down Startup folder must not crash the app itself.
         pass
 
-def main():
+def main(argv=None):
     """Build the window and start the reminder loop."""
-    global root, button
+    global root, button, reminder_interval_ms
+    reminder_interval_ms = _parse_interval_minutes(argv if argv is not None else sys.argv) * 60 * 1000
     # Create window
     root = tk.Tk()
     root.title("RememberMe")
