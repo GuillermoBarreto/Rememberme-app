@@ -13,4 +13,8 @@
    python rememberme.py
    ```
 2. Click **Start Reminders** — a motivational pop-up will appear every hour while the app is running.
+   Use `--interval-minutes` to change the interval:
+   ```bash
+   python rememberme.py --interval-minutes 10
+   ```
 3. On Windows, the app registers itself to launch automatically at startup.
