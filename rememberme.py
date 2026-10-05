@@ -45,10 +45,21 @@ def _parse_interval_minutes(argv):
     return minutes
 
 
+# Index of the quote shown last, or None before the first reminder.
+last_quote_index = None
+
+
 def remind():
-    """Show one study reminder popup with a random motivational quote."""
-    quote = random.choice(quotes)
-    messagebox.showinfo("⏰ RememberMe", f"Time to study!\n\n{quote}")
+    """Show one study reminder popup with a random motivational quote.
+
+    Never shows the same quote twice in a row.
+    """
+    global last_quote_index
+    index = random.randrange(len(quotes))
+    while len(quotes) > 1 and index == last_quote_index:
+        index = random.randrange(len(quotes))
+    last_quote_index = index
+    messagebox.showinfo("⏰ RememberMe", f"Time to study!\n\n{quotes[index]}")
 
 
 def schedule_reminder():
