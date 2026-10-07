@@ -24,18 +24,37 @@ reminder_interval_ms = REMINDER_INTERVAL_MS
 reminder_job = None
 
 
+_FLAG_MISSING = object()
+
+
+def _interval_flag_value(args):
+    """Return the raw value given to --interval-minutes, or _FLAG_MISSING.
+
+    Accepts both ``--interval-minutes 10`` and ``--interval-minutes=10``.
+    A present-but-empty value is reported as a present flag with an invalid
+    value (the caller turns it into an exit-2 error, same as a bad integer).
+    """
+    for index, arg in enumerate(args):
+        if arg == "--interval-minutes":
+            return args[index + 1] if index + 1 < len(args) else ""
+        if arg.startswith("--interval-minutes="):
+            return arg.partition("=")[2]
+    return _FLAG_MISSING
+
+
 def _parse_interval_minutes(argv):
     """Return the reminder interval in minutes from ``--interval-minutes``.
 
+    Accepts both ``--interval-minutes 10`` and ``--interval-minutes=10``.
     Defaults to 60. Exits with status 2 on a missing or invalid value.
     """
     args = list(argv[1:])
-    if "--interval-minutes" not in args:
+    raw = _interval_flag_value(args)
+    if raw is _FLAG_MISSING:
         return 60
-    index = args.index("--interval-minutes")
     try:
-        minutes = int(args[index + 1])
-    except (IndexError, ValueError):
+        minutes = int(raw)
+    except (TypeError, ValueError):
         print("error: --interval-minutes needs a positive integer number of minutes",
               file=sys.stderr)
         raise SystemExit(2)
