@@ -24,6 +24,17 @@ reminder_interval_ms = REMINDER_INTERVAL_MS
 reminder_job = None
 
 
+USAGE = (
+    "usage: rememberme.py [--interval-minutes MINUTES]\n"
+    "\n"
+    "Show a motivational study reminder popup every MINUTES minutes.\n"
+    "\n"
+    "options:\n"
+    "  --interval-minutes MINUTES   reminder interval in whole minutes (default: 60)\n"
+    "  -h, --help                   show this message and exit\n"
+)
+
+
 _FLAG_MISSING = object()
 
 
@@ -42,13 +53,41 @@ def _interval_flag_value(args):
     return _FLAG_MISSING
 
 
+def _reject_unknown_flags(args):
+    """Exit with status 2 on any flag this app does not understand.
+
+    A typo'd flag (e.g. ``--inteval-minutes``) must never be silently
+    ignored: the user would walk away believing reminders run every N
+    minutes while the app quietly falls back to the 60-minute default.
+    ``-h``/``--help`` prints usage and exits 0 instead.
+    """
+    consumed = set()
+    for index, arg in enumerate(args):
+        if arg == "--interval-minutes" and index + 1 < len(args):
+            # The next token is this flag's value; don't mistake it for a flag.
+            consumed.add(index + 1)
+    for index, arg in enumerate(args):
+        if index in consumed:
+            continue
+        if arg in ("-h", "--help"):
+            print(USAGE)
+            raise SystemExit(0)
+        if arg.startswith("-") and arg != "--interval-minutes" \
+                and not arg.startswith("--interval-minutes="):
+            print(f"error: unknown option: {arg}", file=sys.stderr)
+            print(USAGE, file=sys.stderr)
+            raise SystemExit(2)
+
+
 def _parse_interval_minutes(argv):
     """Return the reminder interval in minutes from ``--interval-minutes``.
 
     Accepts both ``--interval-minutes 10`` and ``--interval-minutes=10``.
-    Defaults to 60. Exits with status 2 on a missing or invalid value.
+    Defaults to 60. Exits with status 2 on a missing or invalid value, and
+    on any unknown flag (a typo must not be silently ignored).
     """
     args = list(argv[1:])
+    _reject_unknown_flags(args)
     raw = _interval_flag_value(args)
     if raw is _FLAG_MISSING:
         return 60
