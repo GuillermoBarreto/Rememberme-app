@@ -40,3 +40,23 @@ def test_invalid_values_exit_2(bad):
     with pytest.raises(SystemExit) as exc:
         rememberme._parse_interval_minutes(["rememberme.py", "--interval-minutes", bad])
     assert exc.value.code == 2
+
+
+def test_equals_form_non_numeric_value_exits_2():
+    with pytest.raises(SystemExit) as exc:
+        rememberme._parse_interval_minutes(["rememberme.py", "--interval-minutes=abc"])
+    assert exc.value.code == 2
+
+
+def test_unknown_flag_exits_2(capsys):
+    with pytest.raises(SystemExit) as exc:
+        rememberme._parse_interval_minutes(["rememberme.py", "--inteval-minutes", "10"])
+    assert exc.value.code == 2
+    assert "unknown option" in capsys.readouterr().err
+
+
+def test_help_flag_exits_0(capsys):
+    with pytest.raises(SystemExit) as exc:
+        rememberme._parse_interval_minutes(["rememberme.py", "--help"])
+    assert exc.value.code == 0
+    assert "usage:" in capsys.readouterr().out
