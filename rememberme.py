@@ -160,8 +160,10 @@ def add_to_startup():
             if existing.read() == launch_command:
                 # Already registered with the current path; nothing to do.
                 return
-    except OSError:
-        # No launcher yet (or unreadable); fall through and (re)write one.
+    except (OSError, UnicodeDecodeError):
+        # No launcher yet, unreadable, or not decodable as text (a Startup file
+        # with non-UTF-8 bytes must not crash the app at launch); fall through
+        # and (re)write one.
         pass
 
     try:
